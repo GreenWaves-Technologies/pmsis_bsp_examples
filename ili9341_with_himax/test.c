@@ -1,6 +1,7 @@
 #include "bsp/display/ili9341.h"
 #include "bsp/camera/himax.h"
 #include "bsp/camera/mt9v034.h"
+#include "stdio.h"
 
 #define QVGA 1
 //#define QQVGA 1
@@ -26,7 +27,9 @@ static unsigned char *imgBuff0;
 static struct pi_device ili;
 static pi_buffer_t buffer;
 static struct pi_device device;
+#ifdef USE_BRIDGE
 static uint64_t fb;
+#endif
 
 
 static void lcd_handler(void *arg);
@@ -56,6 +59,7 @@ static void lcd_handler(void *arg)
 }
 
 
+#ifdef USE_BRIDGE
 static int open_bridge()
 {
   rt_bridge_connect(1, NULL);
@@ -65,6 +69,7 @@ static int open_bridge()
 
   return 0;
 }
+#endif
 
 
 static int open_display(struct pi_device *device)
@@ -143,9 +148,11 @@ int main()
 {
   printf("Entering main controller...\n");
 
+#ifndef __ZEPHYR__
   rt_freq_set(__RT_FREQ_DOMAIN_FC, 250000000);
+#endif
   
-  imgBuff0 = (unsigned char *)rt_alloc( RT_ALLOC_L2_CL_DATA, (CAM_WIDTH*CAM_HEIGHT)*sizeof(unsigned char));
+  imgBuff0 = (unsigned char *)pmsis_l2_malloc((CAM_WIDTH*CAM_HEIGHT)*sizeof(unsigned char));
   if (imgBuff0 == NULL) {
       printf("Failed to allocate Memory for Image \n");
       return 1;
@@ -173,7 +180,7 @@ int main()
 #else
   pi_buffer_init(&buffer, PI_BUFFER_TYPE_L2, imgBuff0+CAM_WIDTH*2);
 #endif
-  pi_buffer_set_format(&buffer, PI_BUFFER_FORMAT_GRAY);
+  pi_buffer_set_format(&buffer, CAM_WIDTH, CAM_HEIGHT, PI_BUFFER_FORMAT_GRAY);
 
   camera_control(&device, CAMERA_CMD_STOP, 0);
   camera_capture_async(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT, pi_task_callback(&task, cam_handler, &device));
