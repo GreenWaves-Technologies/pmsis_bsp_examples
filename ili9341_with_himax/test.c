@@ -180,7 +180,7 @@ int main()
 #else
   pi_buffer_init(&buffer, PI_BUFFER_TYPE_L2, imgBuff0+CAM_WIDTH*2);
 #endif
-  pi_buffer_set_format(&buffer, CAM_WIDTH, CAM_HEIGHT, PI_BUFFER_FORMAT_GRAY);
+  pi_buffer_set_format(&buffer, CAM_WIDTH, CAM_HEIGHT, 1, PI_BUFFER_FORMAT_GRAY);
 
   camera_control(&device, CAMERA_CMD_STOP, 0);
   camera_capture_async(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT, pi_task_callback(&task, cam_handler, &device));
