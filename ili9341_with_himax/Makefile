@@ -1,6 +1,6 @@
 APP = test
-SRCS += test.c
-CFLAGS += -O3 -g
+APP_SRCS += test.c
+APP_CFLAGS += -O3 -g
 USE_PMSIS_BSP=1
 
 RUNNER_CONFIG = $(CURDIR)/config.ini
@@ -8,11 +8,11 @@ RUNNER_CONFIG = $(CURDIR)/config.ini
 BOARD ?= gapuino
 
 ifeq '$(BOARD)' 'gapuino'
-CFLAGS = -DGAPUINO -DHIMAX
+APP_CFLAGS = -DGAPUINO -DHIMAX
 endif
 
 ifeq '$(BOARD)' 'gapoc_a'
-CFLAGS = -DGAPOC_A -DUSE_BRIDGE
+APP_CFLAGS = -DGAPOC_A -DUSE_BRIDGE
 endif
 
-include $(PULP_SDK_HOME)/install/rules/pmsis.mk
+include $(RULES_DIR)/pmsis_rules.mk
