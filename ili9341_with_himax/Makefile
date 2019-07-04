@@ -7,11 +7,12 @@ RUNNER_CONFIG = $(CURDIR)/config.ini
 
 BOARD ?= gapuino
 
-ifeq '$(BOARD)' 'gapuino'
+ifeq '$(BOARD_NAME)' 'gapuino'
 APP_CFLAGS = -DGAPUINO -DHIMAX
 endif
 
-ifeq '$(BOARD)' 'gapoc_a'
+ifeq '$(BOARD_NAME)' 'gapoc_a'
+PLPBRIDGE_FLAGS += -ftdi
 APP_CFLAGS = -DGAPOC_A
 # -DUSE_BRIDGE
 endif
