@@ -170,15 +170,16 @@ int main()
     return -1;
   }
 
+#ifdef HIMAX
   buffer.data = imgBuff0+CAM_WIDTH*2+2;
   buffer.stride = 4;
 
-#ifdef HIMAX
   // WIth Himax, propertly configure the buffer to skip boarder pixels
   pi_buffer_init(&buffer, PI_BUFFER_TYPE_L2, imgBuff0+CAM_WIDTH*2+2);
   pi_buffer_set_stride(&buffer, 4);
 #else
-  pi_buffer_init(&buffer, PI_BUFFER_TYPE_L2, imgBuff0+CAM_WIDTH*2);
+  buffer.data = imgBuff0;
+  pi_buffer_init(&buffer, PI_BUFFER_TYPE_L2, imgBuff0);
 #endif
   pi_buffer_set_format(&buffer, CAM_WIDTH, CAM_HEIGHT, 1, PI_BUFFER_FORMAT_GRAY);
 
