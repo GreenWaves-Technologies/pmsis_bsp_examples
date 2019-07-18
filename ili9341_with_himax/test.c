@@ -113,6 +113,12 @@ static int open_camera_himax(struct pi_device *device)
   return 0;
 }
 
+#define MT9V034_BLACK_LEVEL_CTRL  0x47
+#define MT9V034_BLACK_LEVEL_AUTO  (0 << 0)
+#define MT9V034_AEC_AGC_ENABLE    0xaf
+#define MT9V034_AEC_ENABLE_A      (1 << 0)
+#define MT9V034_AGC_ENABLE_A      (1 << 1)
+
 static int open_camera_mt9v034(struct pi_device *device)
 {
   struct mt9v034_conf cam_conf;
@@ -129,7 +135,12 @@ static int open_camera_mt9v034(struct pi_device *device)
   pi_open_from_conf(device, &cam_conf);
   if (camera_open(device))
     return -1;
-  
+
+  uint16_t val = MT9V034_BLACK_LEVEL_AUTO;
+  camera_reg_set(device, MT9V034_BLACK_LEVEL_CTRL, &val);
+  val = MT9V034_AEC_ENABLE_A|MT9V034_AGC_ENABLE_A;
+  camera_reg_set(device, MT9V034_AEC_AGC_ENABLE, &val);
+
   return 0;
 }
 
@@ -151,7 +162,7 @@ int main()
 #ifndef __ZEPHYR__
   rt_freq_set(__RT_FREQ_DOMAIN_FC, 250000000);
 #endif
-  
+
   imgBuff0 = (unsigned char *)pmsis_l2_malloc((CAM_WIDTH*CAM_HEIGHT)*sizeof(unsigned char));
   if (imgBuff0 == NULL) {
       printf("Failed to allocate Memory for Image \n");
