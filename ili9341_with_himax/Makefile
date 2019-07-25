@@ -5,7 +5,7 @@ USE_PMSIS_BSP=1
 
 RUNNER_CONFIG = $(CURDIR)/config.ini
 
-BOARD ?= gapuino
+BOARD_NAME ?= gapuino
 
 ifeq '$(BOARD_NAME)' 'gapuino'
 APP_CFLAGS = -DGAPUINO -DHIMAX

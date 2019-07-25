@@ -136,7 +136,7 @@ static int open_camera_mt9v034(struct pi_device *device)
   if (camera_open(device))
     return -1;
 
-  uint16_t val = MT9V034_BLACK_LEVEL_AUTO;
+  uint8_t val = MT9V034_BLACK_LEVEL_AUTO;
   camera_reg_set(device, MT9V034_BLACK_LEVEL_CTRL, &val);
   val = MT9V034_AEC_ENABLE_A|MT9V034_AGC_ENABLE_A;
   camera_reg_set(device, MT9V034_AEC_AGC_ENABLE, &val);
