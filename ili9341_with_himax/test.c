@@ -1,6 +1,12 @@
 #include "bsp/display/ili9341.h"
 #include "bsp/camera/himax.h"
 #include "bsp/camera/mt9v034.h"
+#ifdef __FREERTOS__
+#include "pmsis_api/include/rtos/pmsis_os.h"
+#include "pmsis_api/include/rtos/os_frontend_api/pmsis_task.h"
+#include "pmsis_api/include/rtos/pmsis_driver_core_api/pmsis_driver_core_api.h"
+#include "pmsis_api/include/rtos/malloc/pmsis_l2_malloc.h"
+#endif
 #include "stdio.h"
 
 #define QVGA 1
@@ -156,30 +162,32 @@ static int open_camera(struct pi_device *device)
   return -1;
 }
 
-int main()
+void test_ili9341_with_himax(void)
 {
   printf("Entering main controller...\n");
 
-#ifndef __ZEPHYR__
+#ifdef __PULP_OS__
   rt_freq_set(__RT_FREQ_DOMAIN_FC, 250000000);
 #endif
 
   imgBuff0 = (unsigned char *)pmsis_l2_malloc((CAM_WIDTH*CAM_HEIGHT)*sizeof(unsigned char));
   if (imgBuff0 == NULL) {
       printf("Failed to allocate Memory for Image \n");
-      return 1;
+      pmsis_exit(1);
   }
 
+  #if 0
   if (open_display(&ili))
   {
     printf("Failed to open display\n");
-    return -1;
+    pmsis_exit(-1);
   }
+  #endif
 
   if (open_camera(&device))
   {
     printf("Failed to open camera\n");
-    return -1;
+    pmsis_exit(-2);
   }
 
 #ifdef HIMAX
@@ -199,11 +207,16 @@ int main()
   camera_capture_async(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT, pi_task_callback(&task, cam_handler, &device));
   camera_control(&device, CAMERA_CMD_START, 0);
 
+  printf("Camera is on\n");
 
   while(1)
   {
     pi_yield();
   }
+}
 
-  return 0;
+int main(void)
+{
+    printf("\n\t*** PMSIS ili9341 with himax test ***\n\n");
+    return pmsis_kickoff((void *) test_ili9341_with_himax);
 }

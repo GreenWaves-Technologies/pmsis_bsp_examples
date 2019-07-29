@@ -13,8 +13,8 @@ endif
 
 ifeq '$(BOARD_NAME)' 'gapoc_a'
 PLPBRIDGE_FLAGS += -ftdi
-APP_CFLAGS = -DGAPOC_A
-# -DUSE_BRIDGE
+APP_CFLAGS += -DGAPOC_A
+#APP_CFLAGS += -DUSE_BRIDGE
 endif
 
 include $(RULES_DIR)/pmsis_rules.mk
