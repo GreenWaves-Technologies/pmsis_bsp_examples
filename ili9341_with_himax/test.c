@@ -207,7 +207,7 @@ void test_ili9341_with_himax(void)
   camera_capture_async(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT, pi_task_callback(&task, cam_handler, &device));
   camera_control(&device, CAMERA_CMD_START, 0);
 
-  printf("Camera is on\n");
+  printf("Camera is on, buffer used: 0x%x, size %d\n", imgBuff0, CAM_WIDTH*CAM_HEIGHT);
 
   while(1)
   {
