@@ -1,6 +1,6 @@
 APP = test
 APP_SRCS += test.c
-APP_CFLAGS += -O3 -g
+APP_CFLAGS += -O3 -g #-DASYNC
 USE_PMSIS_BSP=1
 
 RUNNER_CONFIG = $(CURDIR)/config.ini
