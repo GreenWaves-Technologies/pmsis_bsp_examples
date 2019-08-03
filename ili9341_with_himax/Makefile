@@ -8,7 +8,7 @@ RUNNER_CONFIG = $(CURDIR)/config.ini
 BOARD_NAME ?= gapuino
 
 ifeq '$(BOARD_NAME)' 'gapuino'
-APP_CFLAGS = -DGAPUINO -DHIMAX
+APP_CFLAGS += -DGAPUINO -DHIMAX
 endif
 
 ifeq '$(BOARD_NAME)' 'gapoc_a'

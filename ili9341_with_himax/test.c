@@ -2,10 +2,10 @@
 #include "bsp/camera/himax.h"
 #include "bsp/camera/mt9v034.h"
 #ifdef __FREERTOS__
-#include "pmsis_api/include/rtos/pmsis_os.h"
-#include "pmsis_api/include/rtos/os_frontend_api/pmsis_task.h"
-#include "pmsis_api/include/rtos/pmsis_driver_core_api/pmsis_driver_core_api.h"
-#include "pmsis_api/include/rtos/malloc/pmsis_l2_malloc.h"
+#include "rtos/pmsis_os.h"
+#include "rtos/os_frontend_api/pmsis_task.h"
+#include "rtos/pmsis_driver_core_api/pmsis_driver_core_api.h"
+#include "rtos/malloc/pmsis_l2_malloc.h"
 #endif
 #include "stdio.h"
 
@@ -54,7 +54,7 @@ static void cam_handler(void *arg)
 #else
   #if 1
   printf("Received an image\n");
-  pmsis_exit(0);
+  //pmsis_exit(0);
   #else
   display_write_async(&ili, &buffer, 0, 0, LCD_WIDTH, LCD_HEIGHT, pi_task_callback(&task, lcd_handler, NULL));
   #endif
@@ -208,28 +208,38 @@ void test_ili9341_with_himax(void)
 #endif
   pi_buffer_set_format(&buffer, CAM_WIDTH, CAM_HEIGHT, 1, PI_BUFFER_FORMAT_GRAY);
 
-  #if (ASYNC)
-  camera_control(&device, CAMERA_CMD_STOP, 0);
-  camera_capture_async(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT, pi_task_callback(&task, cam_handler, &device));
-  camera_control(&device, CAMERA_CMD_START, 0);
-  #else
-  printf("Camera start.\n");
-  camera_control(&device, CAMERA_CMD_START, 0);
-  camera_capture(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT);
-  printf("Camera image captured.\n");
-  camera_control(&device, CAMERA_CMD_STOP, 0);
-  printf("Camera stop.\n");
-  pmsis_exit(0);
-  #endif
-
-  while(1)
+  uint32_t idx=0;
+  while (idx<50)
   {
-    pi_yield();
+      #if defined(ASYNC)
+      camera_control(&device, CAMERA_CMD_STOP, 0);
+      camera_capture_async(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT, pi_task_callback(&task, cam_handler, &device));
+      camera_control(&device, CAMERA_CMD_START, 0);
+      pi_task_wait_on(&task);
+      #else
+      //printf("Camera start.\n");
+      camera_control(&device, CAMERA_CMD_START, 0);
+      camera_capture(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT);
+      //printf("Camera image captured.\n");
+      camera_control(&device, CAMERA_CMD_STOP, 0);
+      //for (volatile int i=0; i<44700; i++);
+      //printf("Camera stop.\n");
+      //pmsis_exit(0);
+      #endif
+      idx++;
   }
+  printf("End\n");
+  pmsis_exit(0);
 }
 
 int main(void)
 {
-    printf("\n\t*** PMSIS ili9341 with himax test ***\n\n");
+    #if defined(GAPUINO)
+    printf("\n\t*** PMSIS ili9341 with himax test on gapuino ***\n\n");
+    #else
+    #if defined(GAPOC_A)
+    printf("\n\t*** PMSIS ili9341 with mt9v034 test on gapoc_a ***\n\n");
+    #endif
+    #endif
     return pmsis_kickoff((void *) test_ili9341_with_himax);
 }
