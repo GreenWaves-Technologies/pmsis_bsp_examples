@@ -90,6 +90,9 @@ static int open_display(struct pi_device *device)
   if (display_open(device))
     return -1;
 
+  //if (display_ioctl(device, ILI_IOCTL_ORIENTATION, ILI_ORIENTATION_270))
+  // return -1;
+
 #else
   if (open_bridge())
   {
@@ -176,13 +179,11 @@ void test_ili9341_with_himax(void)
       pmsis_exit(1);
   }
 
-  #if 0
   if (open_display(&ili))
   {
     printf("Failed to open display\n");
     pmsis_exit(-1);
   }
-  #endif
 
   if (open_camera(&device))
   {
