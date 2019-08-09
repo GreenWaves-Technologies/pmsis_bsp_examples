@@ -52,7 +52,12 @@ static void cam_handler(void *arg)
   camera_control(&device, CAMERA_CMD_START, 0);
 
 #else
+  #if 1
+  printf("Received an image\n");
+  //pmsis_exit(0);
+  #else
   display_write_async(&ili, &buffer, 0, 0, LCD_WIDTH, LCD_HEIGHT, pi_task_callback(&task, lcd_handler, NULL));
+  #endif
 #endif
 }
 
@@ -167,7 +172,7 @@ static int open_camera(struct pi_device *device)
 
 void test_ili9341_with_himax(void)
 {
-  printf("Entering main controller...\n");
+    printf("Entering main controller...\n");
 
 #ifdef __PULP_OS__
   rt_freq_set(__RT_FREQ_DOMAIN_FC, 250000000);
@@ -204,15 +209,22 @@ void test_ili9341_with_himax(void)
 #endif
   pi_buffer_set_format(&buffer, CAM_WIDTH, CAM_HEIGHT, 1, PI_BUFFER_FORMAT_GRAY);
 
-  camera_control(&device, CAMERA_CMD_STOP, 0);
-  camera_capture_async(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT, pi_task_callback(&task, cam_handler, &device));
-  camera_control(&device, CAMERA_CMD_START, 0);
-
-  printf("Camera is on, buffer used: 0x%x, size %d\n", imgBuff0, CAM_WIDTH*CAM_HEIGHT);
-
-  while(1)
+  while (1)
   {
-    pi_yield();
+      #if (ASYNC)
+      camera_control(&device, CAMERA_CMD_STOP, 0);
+      camera_capture_async(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT, pi_task_callback(&task, cam_handler, &device));
+      camera_control(&device, CAMERA_CMD_START, 0);
+      pi_task_wait_on(&task);
+      #else
+      printf("Camera start.\n");
+      camera_control(&device, CAMERA_CMD_START, 0);
+      camera_capture(&device, imgBuff0, CAM_WIDTH*CAM_HEIGHT);
+      printf("Camera image captured.\n");
+      camera_control(&device, CAMERA_CMD_STOP, 0);
+      printf("Camera stop.\n");
+      //pmsis_exit(0);
+      #endif
   }
 }
 
