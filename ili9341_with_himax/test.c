@@ -184,11 +184,13 @@ void test_ili9341_with_himax(void)
       pmsis_exit(1);
   }
 
+  #ifndef __FREERTOS__
   if (open_display(&ili))
   {
     printf("Failed to open display\n");
     pmsis_exit(-1);
   }
+  #endif
 
   if (open_camera(&device))
   {
